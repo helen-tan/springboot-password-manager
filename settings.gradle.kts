@@ -1,1 +1,1 @@
-rootProject.name = "gradle-password-manager"
+rootProject.name = "springboot-password-manager"

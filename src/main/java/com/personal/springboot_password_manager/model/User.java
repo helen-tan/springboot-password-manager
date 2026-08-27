@@ -1,11 +1,11 @@
-package com.personal.gradle_password_manager.model;
+package com.personal.springboot_password_manager.model;
 
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.personal.gradle_password_manager.model.enums.UserRole;
+import com.personal.springboot_password_manager.model.enums.UserRole;
 
 import lombok.Data;
 

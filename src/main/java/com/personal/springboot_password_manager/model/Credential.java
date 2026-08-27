@@ -1,4 +1,4 @@
-package com.personal.gradle_password_manager.model;
+package com.personal.springboot_password_manager.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
