@@ -1,10 +1,10 @@
-package com.personal.gradle_password_manager;
+package com.personal.springboot_password_manager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GradlePasswordManagerApplicationTests {
+class PasswordManagerApplicationTests {
 
 	@Test
 	void contextLoads() {

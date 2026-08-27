@@ -1,13 +1,13 @@
-package com.personal.gradle_password_manager;
+package com.personal.springboot_password_manager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GradlePasswordManagerApplication {
+public class PasswordManagerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GradlePasswordManagerApplication.class, args);
+		SpringApplication.run(PasswordManagerApplication.class, args);
 	}
 
 }
