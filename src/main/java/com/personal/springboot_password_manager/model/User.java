@@ -5,8 +5,6 @@ import java.util.Set;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.personal.springboot_password_manager.model.enums.UserRole;
-
 import lombok.Data;
 
 @Data
@@ -16,14 +14,15 @@ public class User {
     private String id;
 
     private String userId;
-
     private String email;
-
     private String passwordHash;
-
     private Set<UserRole> roles;
-
     private Long createdAt;
+
+    public enum UserRole {
+        ROLE_USER,
+        ROLE_ADMIN
+    }
 
     public User() {
     }

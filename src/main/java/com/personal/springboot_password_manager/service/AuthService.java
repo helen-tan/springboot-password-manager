@@ -13,7 +13,7 @@ import com.personal.springboot_password_manager.dto.request.LoginRequestDTO;
 import com.personal.springboot_password_manager.dto.request.RegisterRequestDTO;
 import com.personal.springboot_password_manager.dto.response.AuthResponse;
 import com.personal.springboot_password_manager.model.User;
-import com.personal.springboot_password_manager.model.enums.UserRole;
+import com.personal.springboot_password_manager.model.User.UserRole;
 import com.personal.springboot_password_manager.repository.UserRepository;
 import com.personal.springboot_password_manager.security.JwtUtil;
 
