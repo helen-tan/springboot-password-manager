@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.personal.springboot_password_manager.dto.request.RegisterRequestDTO;
 import com.personal.springboot_password_manager.dto.response.AuthResponse;
+import com.personal.springboot_password_manager.dto.response.GlobalResponse;
 import com.personal.springboot_password_manager.service.AuthService;
 import com.personal.springboot_password_manager.service.UserService;
 
@@ -30,12 +31,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody RegisterRequestDTO request) {
+    public GlobalResponse<AuthResponse> register(@RequestBody RegisterRequestDTO request) {
         boolean userExists = userService.userExistByEmail(request.getEmail()).isPresent();
         if (userExists) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with this email already exists");
         }
-        return authService.registerUser(request);
-    }
+        AuthResponse authRes = authService.registerUser(request);
+        GlobalResponse<AuthResponse> res = new GlobalResponse<AuthResponse>(HttpStatus.OK.value(),
+                "User created successfully", authRes);
 
+        return res;
+    }
 }
