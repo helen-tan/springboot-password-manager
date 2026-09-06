@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -20,6 +22,7 @@ import java.util.Optional;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.personal.springboot_password_manager.dto.request.LoginRequestDTO;
 import com.personal.springboot_password_manager.dto.request.RegisterRequestDTO;
 import com.personal.springboot_password_manager.dto.response.AuthResponse;
 import com.personal.springboot_password_manager.model.User;
@@ -114,5 +117,62 @@ public class AuthControllerTest {
         // Verify that registerUser() was not called - that registration was not
         // attempted
         verify(authService, never()).registerUser(any(RegisterRequestDTO.class));
+    }
+
+    @Test
+    @DisplayName("login::ValidCredentails_ReturnsAuthResponse")
+    void login_Success_shouldReturnAuthResponseForValidCredentials() throws Exception {
+        // Arrange
+        String testEmail = "test@example.com";
+        String testPassword = "test_password";
+
+        LoginRequestDTO req = new LoginRequestDTO();
+        req.setEmail(testEmail);
+        req.setPassword(testPassword);
+
+        AuthResponse authRes = new AuthResponse();
+        authRes.setToken("jwt-token");
+        authRes.setUserId("user1");
+        authRes.setEmail(testEmail);
+
+        when(authService.login(any(LoginRequestDTO.class))).thenReturn(authRes);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.message").value("Login successfully"))
+                .andExpect(jsonPath("$.data.token").value("jwt-token"))
+                .andExpect(jsonPath("$.data.userId").value("user1"))
+                .andExpect(jsonPath("$.data.email").value(testEmail));
+
+        // Verify that the controller passed the login request to the service
+        verify(authService).login(any(LoginRequestDTO.class));
+    }
+
+    @Test
+    @DisplayName("login::InvalidCredentials_ThrowsBadRequest")
+    void login_Fail_shouldReturnBadRequestForInvalidCredentials() throws Exception {
+        // Arrange
+        String testEmail = "test@example.com";
+        String testPassword = "wrong_password";
+
+        LoginRequestDTO req = new LoginRequestDTO();
+        req.setEmail(testEmail);
+        req.setPassword(testPassword);
+
+        when(authService.login(any(LoginRequestDTO.class)))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest());
+
+        // Verify that the controller called the service
+        verify(authService).login(any(LoginRequestDTO.class));
     }
 }
