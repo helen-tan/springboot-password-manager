@@ -3,6 +3,7 @@ package com.personal.springboot_password_manager.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 
 import java.util.Date;
 
@@ -15,6 +16,15 @@ import org.springframework.stereotype.Component;
 public class JwtUtil {
     private final SecretKey key;
     private final long expirationMs;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @PostConstruct
+    public void checkJwtSecret() {
+        System.out.println("JWT secret configured: "
+                + (jwtSecret != null && !jwtSecret.isBlank()));
+    }
 
     public JwtUtil(
             @Value("${jwt.secret}") String secret,
