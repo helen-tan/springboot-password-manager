@@ -10,6 +10,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -20,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.personal.springboot_password_manager.dto.request.RegisterRequestDTO;
 import com.personal.springboot_password_manager.dto.response.AuthResponse;
+import com.personal.springboot_password_manager.model.User;
 import com.personal.springboot_password_manager.security.JwtUtil;
 import com.personal.springboot_password_manager.service.AuthService;
 import com.personal.springboot_password_manager.service.UserService;
@@ -46,7 +49,8 @@ public class AuthControllerTest {
 
     @Test
     @DisplayName("register::ValidEmail_CreatesUser")
-    void register_shouldRegisterUserSuccessfully() throws Exception {
+    void register_Success_shouldRegisterUserSuccessfully() throws Exception {
+        // Arrange
         String testEmail = "test@example.com";
         String testPassword = "test_password";
 
@@ -62,6 +66,7 @@ public class AuthControllerTest {
         // Registration succeeds
         when(authService.registerUser(any(RegisterRequestDTO.class))).thenReturn(authRes);
 
+        // Act
         mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
@@ -71,5 +76,43 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.data.token").value("jwt-token"))
                 .andExpect(jsonPath("$.data.userId").value("testUserId"))
                 .andExpect(jsonPath("$.data.email").value(testEmail));
+
+        // Verify
+        verify(userService).userExistByEmail(testEmail);
+        verify(authService).registerUser(any(RegisterRequestDTO.class));
+    }
+
+    @Test
+    @DisplayName("register::EmailExists_Throw409Conflict")
+    void register_Fail_shouldReturnConflictWhenEmailAlreadyExists() throws Exception {
+        // Arrange
+        String testEmail = "alreadyExist@example.com";
+        String testPassword = "test_password";
+
+        RegisterRequestDTO req = new RegisterRequestDTO();
+        req.setEmail(testEmail);
+        req.setPassword(testPassword);
+
+        User existingUser = new User();
+        existingUser.setEmail(testEmail);
+
+        // Email already exists
+        when(userService.userExistByEmail(testEmail)).thenReturn(Optional.of(existingUser));
+
+        // Act
+        mockMvc.perform(post("/api/v1/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.statusCode").value(409))
+                .andExpect(jsonPath("$.message").value("A user with this email already exists"));
+
+        // Assert
+        // Verify that userExisByEmail is called - controller checked if email exists
+        verify(userService).userExistByEmail(testEmail);
+
+        // Verify that registerUser() was not called - that registration was not
+        // attempted
+        verify(authService, never()).registerUser(any(RegisterRequestDTO.class));
     }
 }
