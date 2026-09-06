@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.personal.springboot_password_manager.dto.request.LoginRequestDTO;
 import com.personal.springboot_password_manager.dto.request.RegisterRequestDTO;
 import com.personal.springboot_password_manager.dto.response.AuthResponse;
 import com.personal.springboot_password_manager.dto.response.GlobalResponse;
@@ -40,6 +41,14 @@ public class AuthController {
         GlobalResponse<AuthResponse> res = new GlobalResponse<AuthResponse>(HttpStatus.OK.value(),
                 "User created successfully", authRes);
 
+        return res;
+    }
+
+    @PostMapping("/login")
+    public GlobalResponse<AuthResponse> login(@RequestBody LoginRequestDTO request) {
+        AuthResponse loginRes = authService.login(request);
+        GlobalResponse<AuthResponse> res = new GlobalResponse<AuthResponse>(HttpStatus.OK.value(),
+                "Login successfully", loginRes);
         return res;
     }
 }
